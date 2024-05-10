@@ -1,3 +1,4 @@
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import LogisticRegression
 
 from machine_learning.data_handling import Dataset
@@ -17,12 +18,14 @@ def main():
 
     # Define models to be trained
     models = {
-        "Logistic Regression": LogisticRegression(solver='liblinear'),  # Solver specified for clarity
+        "Logistic Regression": LogisticRegression(solver='liblinear'),
+        "Random Forest": RandomForestClassifier()
     }
 
     # Define hyperparameter grids for tuning
     param_grids = {
         "Logistic Regression": {"C": [0.1, 1, 10], "max_iter": [10000]},
+        "Random Forest": {"min_samples_leaf": [1], "max_depth": [1, 5]}
     }
 
     experiment = Experiment(models, param_grids, n_replications=10)
@@ -30,10 +33,23 @@ def main():
 
     # Plot the results using the Plotter class
     plotter = Plotter()
-    plotter.plot_metric_density(results)
+    plotter.plot_metric_density(results, metrics=('accuracy', 'precision', 'f1_score', 'recall'))
     plotter.plot_evaluation_metric_over_replications(
         experiment.results.groupby('model')['accuracy'].apply(list).to_dict(),
         'Accuracy per Replication and Average Accuracy', 'Accuracy')
+
+    plotter.plot_evaluation_metric_over_replications(
+        experiment.results.groupby('model')['f1_score'].apply(list).to_dict(),
+        'F1-Score per Replication and Average F1-Score', 'F1-score')
+
+    plotter.plot_evaluation_metric_over_replications(
+        experiment.results.groupby('model')['precision'].apply(list).to_dict(),
+        'Precision per Replication and Average Precision Score', 'Precision')
+
+    plotter.plot_evaluation_metric_over_replications(
+        experiment.results.groupby('model')['recall'].apply(list).to_dict(),
+        'Recall per Replication and Average Recall', 'Recall')
+
     plotter.plot_confusion_matrices(experiment.mean_conf_matrices)
     plotter.print_best_parameters(results)
 

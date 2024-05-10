@@ -1,4 +1,4 @@
-from sklearn.metrics import accuracy_score, f1_score, roc_auc_score
+from sklearn.metrics import accuracy_score, f1_score, roc_auc_score, precision_score, recall_score
 from sklearn.model_selection import GridSearchCV
 
 
@@ -46,9 +46,11 @@ class ModelTrainer:
         prob_predictions = self.model.predict_proba(X_test)[:, 1] if hasattr(self.model, "predict_proba") else [0] * len(
             y_test)
         accuracy = accuracy_score(y_test, predictions)
+        precision = precision_score(y_test, predictions)
+        recall = recall_score(y_test, predictions)
         f1 = f1_score(y_test, predictions)
         roc_auc = roc_auc_score(y_test, prob_predictions)
-        return accuracy, f1, roc_auc, predictions
+        return accuracy, f1, roc_auc, precision, recall ,predictions
 
 
 # Define a class for optimizing model hyperparameters
